@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+    input, button { padding: 10px; margin-top: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>Chat with AI</h2>
+  <div id="chat"></div>
+  <input id="userInput" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    const API_KEY = "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"; // 👈 Replace with your OpenRouter API key
+
+    const chat = document.getElementById("chat");
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const userMsg = input.value;
+      if (!userMsg) return;
+
+      chat.innerHTML += `<p><strong>You:</strong> ${userMsg}</p>`;
+      input.value = "";
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-3.5-turbo",
+          messages: [
+            { role: "user", content: userMsg }
+          ]
+        })
+      });
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content || "Error!";
+      chat.innerHTML += `<p><strong>Bot:</strong> ${reply}</p>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
